@@ -1,16 +1,12 @@
 [
   {
-    "text": "Guide",
-    "link": "/guide/",
-    "activeMatch": "/guide/"
+    "text": "Using Floww",
+    "link": "/using-floww/",
+    "activeMatch": "/using-floww/"
   },
   {
-    "text": "Hello world",
-    "link": "/hello/",
-    "activeMatch": "/hello/"
-  },
-  {
-    "text": "API",
-    "link": "https://rspress.dev/api/index.html"
+    "text": "Reference",
+    "link": "/reference/",
+    "activeMatch": "/reference/"
   }
 ]
