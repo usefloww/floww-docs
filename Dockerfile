@@ -17,6 +17,7 @@ RUN pnpm run build
 FROM nginxinc/nginx-unprivileged:stable-alpine AS app
 
 COPY --from=builder /app/doc_build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 USER root
 RUN chown -R nginx:nginx /usr/share/nginx/html
