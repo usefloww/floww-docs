@@ -96,45 +96,6 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Use Cases Section */}
-        <div className="mt-40 w-full">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white text-center">
-              What can you build?
-            </h2>
-
-            <div className="grid md:grid-cols-3 gap-8 mt-8">
-              <div className="p-8 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-300">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                  Scheduled Workflows
-                </h3>
-                <p className="text-slate-600 dark:text-slate-300">
-                  Run cleanup jobs, sync data, or trigger reports with cron
-                  schedules.
-                </p>
-              </div>
-
-              <div className="p-8 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-300">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                  Webhook Automations
-                </h3>
-                <p className="text-slate-600 dark:text-slate-300">
-                  React instantly to incoming events from your apps or APIs.
-                </p>
-              </div>
-
-              <div className="p-8 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-300">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                  Event Pipelines
-                </h3>
-                <p className="text-slate-600 dark:text-slate-300">
-                  Chain multiple actions and build lightweight backend
-                  workflows.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Documentation Reference Section */}
         <div className="mt-40 w-full">

@@ -10,14 +10,23 @@ export default defineConfig({
     light: '/rspress-light-logo.png',
     dark: '/rspress-dark-logo.png',
   },
+  // Set the default theme mode to dark
+  builderConfig: {
+    html: {
+      tags: [
+        {
+          tag: 'script',
+          // Specify the default theme mode, which can be `dark` or `light`
+          children: "window.RSPRESS_THEME = 'dark';",
+        },
+      ],
+    },
+  },
   themeConfig: {
-    nav: [
-      { text: 'Docs', link: '/docs/' },
-      { text: 'Reference', link: '/reference/' },
-      { text: 'Pricing', link: '/pricing/' },
-    ],
+    darkMode: false, // allow only dark mode
   },
   route: {
     cleanUrls: true,
   },
+  
 });

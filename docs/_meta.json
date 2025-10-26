@@ -1,12 +1,16 @@
 [
   {
-    "text": "Using Floww",
-    "link": "/using-floww/",
-    "activeMatch": "/using-floww/"
+    "text": "Docs",
+    "link": "/docs/",
+    "activeMatch": "/docs/"
   },
   {
-    "text": "Reference",
-    "link": "/reference/",
-    "activeMatch": "/reference/"
+    "text": "Pricing",
+    "link": "/pricing/",
+    "activeMatch": "/pricing/"
+  },
+  {
+    "text": "Dashboard",
+    "link": "https://dashboard.flow.toondn.app"
   }
 ]
