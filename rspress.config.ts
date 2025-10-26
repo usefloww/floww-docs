@@ -5,12 +5,16 @@ export default defineConfig({
   root: path.join(__dirname, 'docs'),
   title: 'Floww',
   icon: '/rspress-icon.png',
+  globalStyles: path.join(__dirname, 'styles/index.css'),
   logo: {
     light: '/rspress-light-logo.png',
     dark: '/rspress-dark-logo.png',
   },
   themeConfig: {
-    socialLinks: [],
+    nav: [
+      { text: 'docs', link: '/docs/' },
+      { text: 'pricing', link: '/pricing/' },
+    ],
   },
   route: {
     cleanUrls: true,
