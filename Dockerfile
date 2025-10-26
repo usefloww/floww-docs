@@ -7,7 +7,7 @@ RUN npm install -g pnpm@9
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
-COPY rspress.config.ts tsconfig.json ./
+COPY rspress.config.ts tsconfig.json postcss.config.js tailwind.config.js ./
 COPY styles styles
 COPY docs docs
 
