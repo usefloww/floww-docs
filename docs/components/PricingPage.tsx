@@ -1,8 +1,8 @@
-import { FeatureMatrix } from "./FeatureMatrix"
+import FeatureMatrix from "./FeatureMatrix"
 
 
 // Example usage
-export function Example() {
+export default function PricingPage() {
   const Check = () => <span className="text-green-600 dark:text-green-400 font-semibold">✓</span>
 
   const options = {
