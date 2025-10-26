@@ -12,8 +12,9 @@ export default defineConfig({
   },
   themeConfig: {
     nav: [
-      { text: 'docs', link: '/docs/' },
-      { text: 'pricing', link: '/pricing/' },
+      { text: 'Docs', link: '/docs/' },
+      { text: 'Reference', link: '/reference/' },
+      { text: 'Pricing', link: '/pricing/' },
     ],
   },
   route: {

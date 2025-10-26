@@ -8,6 +8,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY rspress.config.ts tsconfig.json ./
+COPY styles styles
 COPY docs docs
 
 FROM base AS builder
