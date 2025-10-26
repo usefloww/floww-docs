@@ -1,5 +1,21 @@
 [
-  "quick-start",
-  "running-locally",
-  "concepts"
+  "index",
+  {
+    "type": "dir",
+    "name": "getting-started",
+    "label": "Getting Started",
+    "collapsed": false
+  },
+  {
+    "type": "dir",
+    "name": "advanced",
+    "label": "Advanced",
+    "collapsed": true
+  },
+  {
+    "type": "dir",
+    "name": "providers",
+    "label": "Providers",
+    "collapsed": true
+  }
 ]

@@ -11,7 +11,11 @@ export default defineConfig({
     dark: '/rspress-dark-logo.png',
   },
   // Set the default theme mode to dark
+  markdown: {
+    checkDeadLinks: true,
+  },
   builderConfig: {
+    
     html: {
       tags: [
         {

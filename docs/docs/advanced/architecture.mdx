@@ -1,0 +1,99 @@
+# Architecture
+
+This outlines some of the architecture which should help contributors understand which parts
+are available and what does what.
+
+## Spaces
+
+There are 3 places where code can run
+
+**Userspace:** code written by the user, where it runs is dependent on when it runs. In development mode this will run locally when deployed this will run inside of an aws lambda function.
+
+**Client:** code packaged inside the of the floww-sdk and responsible for invoking the
+userspace with the correct context
+
+**Server:** backend code which interacts with the database, deploys aws lambdas and invokes them with the right context.
+
+
+## Components
+
+Next to the spaces we also have some other components that are used to coordinate everything
+
+- **workos:** authentication provider across cli, admin page, dashboard, etc
+- **centrifugo:** manages websocket connections and broadcasting for live flow triggers
+- **cli:** part of the sdk which supports various commands
+- **sdk:** contains code for actions as well as typing for triggers and providers
+- **ecr:** aws registry used to store the docker runtimes used for the lambdas
+- **ecr proxy:** allows for granular access control when pushing new images to the ecr
+
+
+## Flows
+
+### (client) dev
+
+:::note{title="1. prerequisites"}
+<ol style={{marginBottom: '1rem', lineHeight: '1.4'}}>
+  <li style={{marginBottom: '0.5rem'}}>check that workflow exists</li>
+</ol>
+:::
+
+
+:::note{title="2. execution"}
+<ol style={{marginBottom: '1rem', lineHeight: '1.4'}}>
+  <li style={{marginBottom: '0.5rem'}}>fetch available providers available in namespace</li>
+  <li style={{marginBottom: '0.5rem'}}>initialize userspace with providers configs</li>
+  <li style={{marginBottom: '0.5rem'}}>execute userspace (returns triggers and providers usage)</li>
+  <li style={{marginBottom: '0.5rem'}}>
+    verify that all used providers are set up
+    <ul style={{marginTop: '0.25rem', marginLeft: '1rem', lineHeight: '1.4'}}>
+      <li>prompt user in case its not</li>
+    </ul>
+  </li>
+  <li style={{marginBottom: '0.5rem'}}>setup even routing to userspace (websocket + local events)</li>
+</ol>
+:::
+
+:::info{title="reruns"}
+<ul style={{lineHeight: '1.4'}}>
+<li>Code change (reload) will re execute the execution flow from step 3</li>
+<li>Setting up a provider will re execute the execution flow from step 1</li>
+</ul>
+
+:::
+
+
+### (client) deploy
+
+:::note{title="1. prerequisites"}
+<ol style={{marginBottom: '1rem', lineHeight: '1.4'}}>
+  <li style={{marginBottom: '0.5rem'}}>
+    check that workflow exists
+    <ul style={{marginTop: '0.25rem', marginLeft: '1rem', lineHeight: '1.4'}}>
+      <li>if it does not prompt user to create workflow</li>
+    </ul>
+  </li>
+</ol>
+:::
+
+:::note{title="2. checks"}
+<ol style={{marginBottom: '1rem', lineHeight: '1.4'}}>
+  <li style={{marginBottom: '0.5rem'}}>fetch available providers available in namespace</li>
+  <li style={{marginBottom: '0.5rem'}}>execute userspace (returns triggers and providers usage)</li>
+  <li style={{marginBottom: '0.5rem'}}>
+    verify that all used providers are set up
+    <ul style={{marginTop: '0.25rem', marginLeft: '1rem', lineHeight: '1.4'}}>
+      <li>prompt user in case its not</li>
+    </ul>
+  </li>
+</ol>
+:::
+
+:::info{title="reruns"}
+<ul style={{lineHeight: '1.4'}}>
+<li>Setting up a provider will re execute the checks flow from step 2</li>
+</ul>
+:::
+
+
+### (server) incoming webhook
+

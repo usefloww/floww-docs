@@ -1,0 +1,58 @@
+---
+title: Quick Start
+---
+
+import { PackageManagerTabs } from '@theme';
+
+
+Every workflow lives inside of its own folder so to get started we
+recommend creating a new folder anywhere to your liking
+
+```bash
+mkdir example-floww && cd example-floww
+```
+
+## Installation
+
+Installation can be done by installing the `floww-sdk` package with your favorite package manager.
+
+<PackageManagerTabs command="install floww-sdk" />
+
+## Your First Workflow
+
+
+Create a new file called `main.ts` and start running
+```bash
+touch main.ts
+```
+
+```typescript title="main.ts"
+import { getProvider } from "@developerflows/floww-sdk";
+
+const builtin = getProvider("builtin");
+
+builtin.triggers.onCron({
+  expression: "*/1 * * * * *",
+  handler: (ctx, event) => {
+    console.log("Do this every second", event.scheduledTime);
+  },
+});
+```
+
+## Run Your Workflow
+
+```bash
+floww dev
+```
+
+This should immediately start printing some logs to the screen
+with a new log line every second as the cron timer is being triggered.
+
+
+## Deploy Your Workflow
+
+```bash
+floww deploy
+```
+
+This will host your workflow
