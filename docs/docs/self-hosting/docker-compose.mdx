@@ -1,0 +1,56 @@
+---
+title: Docker compose
+---
+
+The simplest way to get started with self hosting is to use [docker compose](https://docs.docker.com/compose/)
+
+When using docker compose for self hosting floww will spin up images with the runtimes for user code
+
+
+```yaml  title="docker-compose.yml"
+services:
+  backend:
+    image: "ghcr.io/usefloww/floww-backend:latest"
+    container_name: "floww-backend"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  database:
+    container_name: floww-db
+    image: postgis/postgis:17-3.4-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=postgis
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+
+  migrations:
+    image: "ghcr.io/usefloww/floww-backend:latest"
+    container_name: "floww-migrations"
+    command: "python -m alembic upgrade head"
+    env_file:
+      - .env
+    profiles:
+      - migrations
+    restart: no
+
+  centrifugo:
+    container_name: floww-centrifugo
+    image: centrifugo/centrifugo:v6
+    command: centrifugo -c /centrifugo/config.json
+    volumes:
+      - ./centrifugo.json:/centrifugo/config.json
+    restart: always
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+```
+
+
+## Configuration
+
+```env
+
+```

@@ -3,7 +3,7 @@
 Core triggers available in every Floww installation. No additional setup required.
 
 ```typescript
-import { getProvider } from "@developerflows/floww-sdk";
+import { getProvider } from "floww";
 ```
 
 ## Webhook Trigger

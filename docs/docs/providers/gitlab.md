@@ -3,7 +3,7 @@
 Integrate with GitLab projects and handle repository events.
 
 ```typescript
-import { Gitlab } from "@developerflows/floww-sdk";
+import { Gitlab } from "floww";
 const gitlab = new Gitlab('your-access-token');
 ```
 

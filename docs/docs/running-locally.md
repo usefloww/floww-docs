@@ -52,7 +52,7 @@ Split complex workflows into modules:
 
 ```typescript
 // main.ts
-import { Builtin } from "@developerflows/floww-sdk";
+import { Builtin } from "floww";
 import { githubWorkflows } from "./workflows/github";
 import { calendarWorkflows } from "./workflows/calendar";
 
@@ -73,7 +73,7 @@ export default [
 
 ```typescript
 // workflows/github.ts
-import { Gitlab } from "@developerflows/floww-sdk";
+import { Gitlab } from "floww";
 
 const gitlab = new Gitlab(process.env.GITLAB_TOKEN);
 
