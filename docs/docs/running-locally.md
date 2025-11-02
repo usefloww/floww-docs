@@ -14,7 +14,47 @@ floww dev main.ts
 - Automatic file watching and reload
 - Detailed error messages with stack traces
 - Hot reload when you change your workflow files
-- Runs on `localhost:3000` by default
+- Real webhook URLs for testing with external services
+
+### How floww dev Works
+
+When you run `floww dev`, the CLI:
+
+1. **Registers your triggers** on the Floww server (webhooks, cron schedules, etc.)
+2. **Routes events to your local machine** for execution
+3. **Watches for file changes** and hot-reloads your code
+
+This means:
+- Your webhooks get **real URLs immediately** (e.g., `https://app.usefloww.dev/webhook/w_abc123/custom`)
+- Events are **executed in your local environment** with live code changes
+- You can **test with real external services** (GitLab webhooks, cron schedules, etc.)
+- All **logging happens in your terminal** in real-time
+
+**Example workflow:**
+```bash
+# Start dev server
+floww dev
+
+# Your webhook is registered and you get a URL:
+# ✓ Webhook registered: https://app.usefloww.dev/webhook/w_abc123/custom
+
+# Send a request to that URL from anywhere:
+curl -X POST https://app.usefloww.dev/webhook/w_abc123/custom \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello"}'
+
+# Event is routed to your local machine and executed
+# You see the logs in your terminal immediately
+```
+
+### Local-only Testing
+
+For testing without deploying triggers, you can also use localhost:
+```bash
+curl -X POST http://localhost:3000/webhooks/custom \
+  -H "Content-Type: application/json" \
+  -d '{"test": true}'
+```
 
 ### Custom Port and Host
 
@@ -52,11 +92,11 @@ Split complex workflows into modules:
 
 ```typescript
 // main.ts
-import { Builtin } from "floww";
+import { getProvider } from "floww";
 import { githubWorkflows } from "./workflows/github";
 import { calendarWorkflows } from "./workflows/calendar";
 
-const builtin = new Builtin();
+const builtin = getProvider("builtin");
 
 export default [
     ...githubWorkflows,
@@ -73,9 +113,9 @@ export default [
 
 ```typescript
 // workflows/github.ts
-import { Gitlab } from "floww";
+import { getProvider } from "floww";
 
-const gitlab = new Gitlab(process.env.GITLAB_TOKEN);
+const gitlab = getProvider("gitlab");
 
 export const githubWorkflows = [
     gitlab.triggers.onPushEvent({
@@ -91,23 +131,53 @@ export const githubWorkflows = [
 ];
 ```
 
+## Provider Configuration
+
+Floww automatically detects which providers you're using. When you run `floww dev` for the first time with a new provider, you'll be prompted to configure it:
+
+```bash
+$ floww dev
+
+⚠ Provider "gitlab" with alias "default" not found in namespace
+? Would you like to create it? (Y/n)
+? GitLab Access Token: **********************
+✓ Provider "gitlab:default" configured successfully
+```
+
+### Multiple Provider Instances
+
+You can have multiple instances of the same provider using different aliases:
+
+```typescript
+// Personal GitLab account
+const gitlabPersonal = getProvider("gitlab", "personal");
+
+// Work GitLab account
+const gitlabWork = getProvider("gitlab", "work");
+```
+
+See the [Provider Configuration](/docs/advanced/configuration) guide for more details.
+
 ## Environment Configuration
 
 Use environment variables for configuration:
 
 ```typescript
 // .env file
-GITLAB_TOKEN=your_token_here
 API_URL=https://api.example.com
 DEBUG=true
 ```
 
 ```typescript
 // In your workflow
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+
 builtin.triggers.onWebhook({
     handler: (ctx, event) => {
-        const apiUrl = ctx.config.get('API_URL');
-        const debug = ctx.config.has('DEBUG');
+        const apiUrl = process.env.API_URL;
+        const debug = process.env.DEBUG === 'true';
 
         if (debug) {
             ctx.logger.debug('Processing webhook', { event });
@@ -125,6 +195,10 @@ builtin.triggers.onWebhook({
 Use structured logging for better debugging:
 
 ```typescript
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+
 builtin.triggers.onWebhook({
     handler: (ctx, event) => {
         // Log request details
@@ -162,8 +236,13 @@ builtin.triggers.onWebhook({
 Use curl or tools like Postman to test your webhooks:
 
 ```bash
-# Test basic webhook
+# Test basic webhook (locally)
 curl -X POST http://localhost:3000/webhooks/test \
+  -H "Content-Type: application/json" \
+  -d '{"test": true}'
+
+# Test with your deployed webhook URL
+curl -X POST https://app.usefloww.dev/webhook/w_abc123/test \
   -H "Content-Type: application/json" \
   -d '{"test": true}'
 
@@ -184,11 +263,15 @@ curl -X POST "http://localhost:3000/webhooks/process?userId=123&action=update" \
 For testing cron triggers, use short intervals during development:
 
 ```typescript
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+
 // Development - every 10 seconds
 builtin.triggers.onCron({
     expression: "*/10 * * * * *",
     handler: (ctx, event) => {
-        if (ctx.config.has('DEBUG')) {
+        if (process.env.DEBUG === 'true') {
             ctx.logger.debug('Cron test trigger');
         }
         // Your logic here
@@ -204,6 +287,10 @@ builtin.triggers.onCron({
 ### Graceful Error Handling
 
 ```typescript
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+
 builtin.triggers.onWebhook({
     handler: async (ctx, event) => {
         try {
@@ -238,6 +325,10 @@ builtin.triggers.onWebhook({
 ### Retry Logic for Cron Jobs
 
 ```typescript
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+
 builtin.triggers.onCron({
     expression: "0 */2 * * *", // Every 2 hours
     handler: async (ctx, event) => {
@@ -280,6 +371,10 @@ builtin.triggers.onCron({
 Keep handlers fast and lightweight:
 
 ```typescript
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+
 // Good - lightweight handler
 builtin.triggers.onWebhook({
     handler: async (ctx, event) => {
@@ -310,6 +405,10 @@ builtin.triggers.onWebhook({
 ### Use Storage for State
 
 ```typescript
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+
 builtin.triggers.onWebhook({
     handler: async (ctx, event) => {
         // Store processing state
@@ -346,15 +445,12 @@ builtin.triggers.onWebhook({
 When ready for production:
 
 ```bash
-# Production mode
-floww start main.ts
+# Deploy to Floww cloud
+floww deploy
 
-# With custom settings
-floww start main.ts --port 3000 --host 0.0.0.0
+# View logs
+floww logs [workflow-id]           # Recent logs
+floww logs [workflow-id] --follow  # Live tail
 ```
 
-**Production differences:**
-- No auto-reload
-- Optimized performance
-- Structured logging
-- Listens on all interfaces by default
+See the [Deployment](/docs/getting-started/quick-start#deployment) guide for more details.

@@ -5,26 +5,30 @@ title: Quick Start
 import { PackageManagerTabs } from '@theme';
 
 
-Every workflow lives inside of its own folder so to get started we
-recommend creating a new folder anywhere to your liking
+Get started with Floww in under 5 minutes. Build your first workflow and deploy it to production.
+
+## Create a New Project
+
+Use the `floww init` command to create a new project:
 
 ```bash
-mkdir example-floww && cd example-floww
+npx floww init
 ```
 
-## Installation
+This will:
+- Create a new project directory
+- Set up the necessary files (`main.ts`, `package.json`, etc.)
+- Install dependencies automatically
 
-Installation can be done by installing the `floww-sdk` package with your favorite package manager.
+Then navigate to your project:
 
-<PackageManagerTabs command="install floww-sdk" />
+```bash
+cd my-workflow  # or whatever name you chose
+```
 
 ## Your First Workflow
 
-
-Create a new file called `main.ts` and start running
-```bash
-touch main.ts
-```
+Edit the `main.ts` file created by `floww init`:
 
 ```typescript title="main.ts"
 import { getProvider } from "floww";
@@ -39,20 +43,142 @@ builtin.triggers.onCron({
 });
 ```
 
-## Run Your Workflow
+## Run in Development
+
+Start the development server:
 
 ```bash
 floww dev
 ```
 
-This should immediately start printing some logs to the screen
-with a new log line every second as the cron timer is being triggered.
+**What happens:**
+- Your triggers are registered on the Floww server
+- Events are routed to your local machine for execution
+- Your code hot-reloads when you make changes
+- Logs appear in your terminal in real-time
 
+You should see a new log line every second as the cron trigger fires.
 
-## Deploy Your Workflow
+## Try a Webhook
+
+Let's add a webhook trigger to handle HTTP requests. Update your `main.ts`:
+
+```typescript title="main.ts"
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+
+// Cron trigger - runs every second
+builtin.triggers.onCron({
+  expression: "*/1 * * * * *",
+  handler: (ctx, event) => {
+    console.log("Cron triggered at", event.scheduledTime);
+  },
+});
+
+// Webhook trigger - responds to HTTP requests
+builtin.triggers.onWebhook({
+  path: "/hello",
+  handler: (ctx, event) => {
+    console.log("Webhook received:", event.body);
+    return {
+      message: "Hello from Floww!",
+      timestamp: new Date().toISOString()
+    };
+  },
+});
+```
+
+When you run `floww dev`, you'll get a webhook URL like:
+```
+✓ Webhook registered: https://app.usefloww.dev/webhook/w_abc123/hello
+```
+
+Test it with curl:
+```bash
+curl -X POST https://app.usefloww.dev/webhook/w_abc123/hello \
+  -H "Content-Type: application/json" \
+  -d '{"name": "World"}'
+```
+
+## Deploy to Production
+
+When you're ready to deploy:
 
 ```bash
 floww deploy
 ```
 
-This will host your workflow
+**What happens:**
+- Your TypeScript code is bundled
+- Code is uploaded to Floww cloud
+- Infrastructure is provisioned automatically
+- You receive production webhook URLs
+
+Your workflow will now run in the cloud, handling events 24/7.
+
+## Next Steps
+
+- **[Running Locally](/docs/running-locally)** - Learn about development mode, debugging, and testing
+- **[Provider Configuration](/docs/advanced/configuration)** - Set up integrations with GitLab, Slack, AI models, and more
+- **[Providers](/docs/providers/builtin)** - Explore all available triggers and integrations
+- **[Architecture](/docs/advanced/architecture)** - Understand how Floww works under the hood
+
+## Common Workflows
+
+### Webhook → Slack Notification
+```typescript
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+const slack = getProvider("slack");
+
+builtin.triggers.onWebhook({
+  path: "/deploy",
+  handler: async (ctx, event) => {
+    await slack.postMessage({
+      channel: "#deployments",
+      text: `🚀 Deployment triggered for ${event.body.project}`
+    });
+  }
+});
+```
+
+### Daily Report with Cron
+```typescript
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+
+builtin.triggers.onCron({
+  expression: "0 9 * * 1-5",  // Weekdays at 9 AM
+  handler: async (ctx, event) => {
+    const stats = await fetchDailyStats();
+    await sendReportEmail(stats);
+  }
+});
+```
+
+### GitLab → AI Analysis
+```typescript
+import { getProvider } from "floww";
+import { generateText } from "floww/ai";
+
+const gitlab = getProvider("gitlab");
+const openai = getProvider("openai");
+
+gitlab.triggers.onMergeRequestEvent({
+  handler: async (ctx, event) => {
+    const { title, description } = event.object_attributes;
+
+    const analysis = await generateText({
+      model: openai.models.gpt4,
+      prompt: `Analyze this merge request: ${title}\n${description}`
+    });
+
+    console.log("AI Analysis:", analysis.text);
+  }
+});
+```
+
+When you use providers like `slack`, `gitlab`, or `openai` for the first time, Floww will automatically prompt you to configure them. See the [Provider Configuration](/docs/advanced/configuration) guide for details.
