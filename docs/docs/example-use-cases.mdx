@@ -1,0 +1,61 @@
+---
+title: Example Use Cases
+---
+
+
+### Webhook → Slack Notification
+```typescript
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+const slack = getProvider("slack");
+
+builtin.triggers.onWebhook({
+  path: "/deploy",
+  handler: async (ctx, event) => {
+    await slack.postMessage({
+      channel: "#deployments",
+      text: `🚀 Deployment triggered for ${event.body.project}`
+    });
+  }
+});
+```
+
+### Daily Report with Cron
+```typescript
+import { getProvider } from "floww";
+
+const builtin = getProvider("builtin");
+
+builtin.triggers.onCron({
+  expression: "0 9 * * 1-5",  // Weekdays at 9 AM
+  handler: async (ctx, event) => {
+    const stats = await fetchDailyStats();
+    await sendReportEmail(stats);
+  }
+});
+```
+
+### GitLab → AI Analysis
+```typescript
+import { getProvider } from "floww";
+import { generateText } from "floww/ai";
+
+const gitlab = getProvider("gitlab");
+const openai = getProvider("openai");
+
+gitlab.triggers.onMergeRequestEvent({
+  handler: async (ctx, event) => {
+    const { title, description } = event.object_attributes;
+
+    const analysis = await generateText({
+      model: openai.models.gpt4,
+      prompt: `Analyze this merge request: ${title}\n${description}`
+    });
+
+    console.log("AI Analysis:", analysis.text);
+  }
+});
+```
+
+When you use providers like `slack`, `gitlab`, or `openai` for the first time, Floww will automatically prompt you to configure them. See the [Provider Configuration](/docs/advanced/configuration) guide for details.

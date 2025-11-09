@@ -1,0 +1,39 @@
+---
+title: Self Hosting
+---
+
+import { Badge } from "@theme";
+
+## Configuration
+
+
+## Components & Services
+
+- Floww Backend
+- Floww Dashboard
+- Centrifugo
+- Registry
+
+
+## Deployment options
+
+### Docker Compose
+The simplest way to get started with self hosting is to use [docker compose](https://docs.docker.com/compose/)
+
+When using docker compose for self hosting floww will spin up images with the runtimes for user code.
+
+#### Requirements
+
+- Docker
+- Docker Compose
+- Postgres database (optional)
+
+#### Deployment
+
+```bash
+docker compose up -d
+```
+
+### Kubernetes
+
+<Badge type="warning">Coming soon</Badge>

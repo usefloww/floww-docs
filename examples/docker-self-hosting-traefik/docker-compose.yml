@@ -1,0 +1,175 @@
+services:
+  traefik:
+    image: "traefik:v3.5.3"
+    container_name: "floww-traefik"
+    command:
+      # General
+      - "--log.level=INFO"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+
+      # Entrypoints
+      - "--entrypoints.web.address=:80"
+
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.traefik.rule: Host(`traefik.localhost`)
+      traefik.http.routers.traefik.entrypoints: web
+      traefik.http.routers.traefik.service: api@internal
+
+    ports:
+      - "80:80"
+      - "8080:8080"  # Traefik dashboard
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+    networks:
+      - floww-network
+
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ../../../floww-backend
+    command: >
+      python -X frozen_modules=off -m debugpy --listen 0.0.0.0:3100 -m uvicorn app.main:app --host 0.0.0.0 --reload
+    ports:
+      - "3100:3100"
+    container_name: "floww-backend"
+
+    labels:
+      - "traefik.enable=true"
+
+      # API Router - Main API endpoint
+      - "traefik.http.routers.floww-backend-api.rule=Host(`api.localhost`) && !PathPrefix(`/admin`)"
+      - "traefik.http.routers.floww-backend-api.entrypoints=web"
+      - "traefik.http.routers.floww-backend-api.service=floww-backend"
+
+      # Admin Router - Admin panel
+      - "traefik.http.routers.floww-backend-admin.rule=Host(`admin.localhost`)"
+      - "traefik.http.routers.floww-backend-admin.entrypoints=web"
+      - "traefik.http.routers.floww-backend-admin.service=floww-backend"
+
+      # Dashboard Router - Backend endpoints for dashboard
+      - "traefik.http.routers.floww-backend-dashboard.rule=(Host(`dashboard.localhost`) && (PathPrefix(`/api`) || PathPrefix(`/auth`)))"
+      - "traefik.http.routers.floww-backend-dashboard.entrypoints=web"
+      - "traefik.http.routers.floww-backend-dashboard.service=floww-backend"
+
+      # Docker Registry Router - Container registry endpoints
+      - "traefik.http.routers.floww-backend-registry.rule=Host(`registry.localhost`)"
+      - "traefik.http.routers.floww-backend-registry.entrypoints=web"
+      - "traefik.http.routers.floww-backend-registry.service=floww-backend"
+
+      # Service definition
+      - "traefik.http.services.floww-backend.loadbalancer.server.port=8000"
+
+    env_file:
+      - .env
+
+    networks:
+      - floww-network
+
+    depends_on:
+      db:
+        condition: service_healthy
+      traefik:
+        condition: service_started
+
+    restart: unless-stopped
+
+  dashboard:
+    image: "ghcr.io/usefloww/floww-dashboard:latest"
+    container_name: "floww-dashboard"
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.floww-dashboard.rule=Host(`dashboard.localhost`)"
+      - "traefik.http.routers.floww-dashboard.entrypoints=web"
+      - "traefik.http.services.floww-dashboard.loadbalancer.server.port=8080"
+
+    networks:
+      - floww-network
+
+    depends_on:
+      - backend
+
+    restart: unless-stopped
+
+  db:
+    container_name: floww-db
+    image: postgis/postgis:17-3.4-alpine
+
+    environment:
+      - POSTGRES_DB=postgis
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+    networks:
+      - floww-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d postgis"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    restart: always
+
+  migrations:
+    image: "ghcr.io/usefloww/floww-backend:latest"
+    container_name: "floww-migrations"
+    command: "python -m alembic upgrade head"
+
+    env_file:
+      - .env
+
+    networks:
+      - floww-network
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    restart: "no"
+
+  # centrifugo:
+  #   container_name: floww-centrifugo
+  #   image: ghcr.io/usefloww/floww-centrifugo:latest
+
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.centrifugo.rule=Host(`ws.localhost`)"
+  #     - "traefik.http.routers.centrifugo.entrypoints=web"
+  #     - "traefik.http.services.centrifugo.loadbalancer.server.port=8000"
+
+  #   environment:
+  #     - CENTRIFUGO_API_KEY=${CENTRIFUGO_API_KEY:-floww-api-key-dev}
+  #     - CENTRIFUGO_ADMIN_ENABLED=${CENTRIFUGO_ADMIN_ENABLED:-false}
+  #     - CENTRIFUGO_ADMIN_INSECURE=${CENTRIFUGO_ADMIN_INSECURE:-false}
+  #     - CENTRIFUGO_CONNECT_PROXY_ENDPOINT=${CENTRIFUGO_CONNECT_PROXY_ENDPOINT:-http://backend:8000/centrifugo/connect}
+  #     - CENTRIFUGO_SUBSCRIBE_PROXY_ENDPOINT=${CENTRIFUGO_SUBSCRIBE_PROXY_ENDPOINT:-http://backend:8000/centrifugo/subscribe}
+  #     - CENTRIFUGO_ALLOWED_ORIGINS=${CENTRIFUGO_ALLOWED_ORIGINS:-["https://dashboard.localhost", "https://api.localhost"]}
+  #     - CENTRIFUGO_ALLOW_ANONYMOUS=${CENTRIFUGO_ALLOW_ANONYMOUS:-false}
+
+  #   networks:
+  #     - floww-network
+
+  #   ulimits:
+  #     nofile:
+  #       soft: 65535
+  #       hard: 65535
+
+  #   restart: always
+
+networks:
+  floww-network:
+    driver: bridge
+
+volumes:
+  postgres-data:

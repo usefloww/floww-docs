@@ -1,0 +1,14 @@
+[
+  "index",
+  {
+    "type": "section-header",
+    "label": "Built-in Providers"
+  },
+  "builtin",
+  "key-value-store",
+  {
+    "type": "section-header",
+    "label": "Third-party Providers"
+  },
+  "gitlab"
+]

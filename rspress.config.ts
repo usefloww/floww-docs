@@ -1,5 +1,8 @@
 import * as path from 'node:path';
 import { defineConfig } from 'rspress/config';
+import { pluginShiki } from "@rspress/plugin-shiki";
+import { pluginClientRedirects } from '@rspress/plugin-client-redirects';
+
 
 export default defineConfig({
   root: path.join(__dirname, 'docs'),
@@ -14,23 +17,50 @@ export default defineConfig({
   markdown: {
     checkDeadLinks: true,
   },
-  builderConfig: {
-    
-    html: {
-      tags: [
+  plugins: [
+    pluginClientRedirects({
+      redirects: [
         {
-          tag: 'script',
-          // Specify the default theme mode, which can be `dark` or `light`
-          children: "window.RSPRESS_THEME = 'dark';",
+          from: '^/index$',
+          to: '/docs/quick-start',
+        },
+        {
+          from: '^/$',
+          to: '/docs/quick-start',
+        },
+        {
+          from: '^/docs/$',
+          to: '/docs/quick-start',
         },
       ],
-    },
-  },
-  themeConfig: {
-    darkMode: false, // allow only dark mode
-  },
+    }),  
+    pluginShiki({
+      langs: [
+        "js",
+        "jsx",
+        "ts",
+        "tsx",
+        "json",
+        "css",
+        "scss",
+        "less",
+        "xml",
+        "diff",
+        "yaml",
+        "md",
+        "mdx",
+        "bash",
+        // Additional
+        "fish",
+        "py",
+        "python",
+        "hcl",
+        "csv",
+        "dockerfile",
+      ],
+    }),
+  ],
   route: {
     cleanUrls: true,
   },
-  
 });

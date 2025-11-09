@@ -1,11 +1,17 @@
 [
   {
-    "text": "Docs",
+    "text": "Developer Guide",
     "link": "/docs/",
     "activeMatch": "/docs/"
   },
   {
-    "text": "Dashboard",
-    "link": "https://dashboard.usefloww.dev"
+    "text": "Reference",
+    "link": "/reference/",
+    "activeMatch": "/reference/"
+  },
+  {
+    "text": "Examples",
+    "link": "https://github.com/usefloww/floww-sdk/tree/main/examples",
+    "target": "_blank"
   }
 ]

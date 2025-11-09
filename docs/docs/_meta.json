@@ -1,27 +1,26 @@
 [
-  "index",
   {
-    "type": "dir",
-    "name": "getting-started",
-    "label": "Getting Started",
-    "collapsed": false
+    "type": "section-header",
+    "label": "Getting Started"
   },
+  "quick-start",
+  "example-use-cases",
   {
-    "type": "dir",
-    "name": "advanced",
-    "label": "Advanced",
-    "collapsed": true
+    "type": "section-header",
+    "label": "Features"
   },
+  "access-control",
+  "debugging",
+  "custom-runtimes",
+  "monitoring",
+  "llm-usage",
+  "testing",
+  "api-keys",
+  "ci-integration",
   {
-    "type": "dir",
-    "name": "self-hosting",
-    "label": "Self hosting",
-    "collapsed": true
+    "type": "section-header",
+    "label": "Advanced"
   },
-  {
-    "type": "dir",
-    "name": "providers",
-    "label": "Providers",
-    "collapsed": true
-  }
+  "architecture",
+  "self-hosting"
 ]

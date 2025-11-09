@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  floww-docs:
+    image: "ghcr.io/usefloww/floww-docs:latest"
+
+    networks:
+      - traefik-net
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.floww-docs.rule=Host(`usefloww.dev`)"
+        - "traefik.http.routers.floww-docs.entrypoints=websecure"
+        - "traefik.http.routers.floww-docs.tls.certresolver=myresolver"
+        - "traefik.http.services.floww-docs.loadbalancer.server.port=8080"
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+networks:
+  traefik-net:
+    external: true

@@ -1,0 +1,24 @@
+---
+title: Custom Runtimes
+---
+
+Custom runtimes allow for installing arbitrary packages and dependencies in the runtime of your workflow.
+Runtimes in floww are built on top of Docker images so they are fully customizable.
+
+## How to use
+
+To use a custom runtime, you will have to create a Dockerfile that installs the dependencies you need.
+
+```dockerfile title="Dockerfile"
+FROM ghcr.io/usefloww/lambda-runtime
+
+COPY package.json /app/package.json
+RUN npm install
+```
+
+When running `floww deploy`, the Dockerfile will automatically be built and used for the deployment.
+
+
+:::warning
+The `Dockerfile` will be used when deploying the workflow but not when running floww locally.
+:::

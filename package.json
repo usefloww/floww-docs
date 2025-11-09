@@ -10,6 +10,8 @@
     "preview": "rspress preview"
   },
   "dependencies": {
+    "@rspress/plugin-client-redirects": "^1.46.0",
+    "@rspress/plugin-shiki": "^1.46.0",
     "@tailwindcss/postcss": "^4.1.16",
     "framer-motion": "^12.23.24",
     "rspress": "^1.40.2"

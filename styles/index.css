@@ -1,1 +1,5 @@
 @import 'tailwindcss';
+
+.rspress-sidebar-section-header {
+  padding-top: 1.5rem;
+}
