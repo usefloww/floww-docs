@@ -3,8 +3,9 @@
 Integrate with GitLab projects and handle repository events.
 
 ```typescript
-import { getProvider } from "floww";
-const gitlab = getProvider("gitlab");
+import { Gitlab } from "floww";
+
+const gitlab = new Gitlab();
 ```
 
 ## Setup
@@ -33,13 +34,13 @@ $ floww dev
 You can configure multiple GitLab accounts using aliases:
 
 ```typescript
-import { getProvider } from "floww";
+import { Gitlab } from "floww";
 
 // Personal GitLab account
-const gitlabPersonal = getProvider("gitlab", "personal");
+const gitlabPersonal = new Gitlab({ alias: "personal" });
 
 // Work GitLab account
-const gitlabWork = getProvider("gitlab", "work");
+const gitlabWork = new Gitlab({ alias: "work" });
 
 gitlabPersonal.triggers.onPushEvent({
   handler: (ctx, event) => {
@@ -62,9 +63,9 @@ When you run `floww dev`, you'll be prompted to configure each alias separately.
 **Use cases**: CI/CD automation, deployment triggers, code review automation, build notifications
 
 ```typescript
-import { getProvider } from "floww";
+import { Gitlab } from "floww";
 
-const gitlab = getProvider("gitlab");
+const gitlab = new Gitlab();
 
 gitlab.triggers.onPushEvent({
   handler: (ctx, event) => {
@@ -94,9 +95,9 @@ gitlab.triggers.onPushEvent({
 **Use cases**: Review automation, status checks, approval workflows, notifications
 
 ```typescript
-import { getProvider } from "floww";
+import { Gitlab } from "floww";
 
-const gitlab = getProvider("gitlab");
+const gitlab = new Gitlab();
 
 gitlab.triggers.onMergeRequestEvent({
   handler: (ctx, event) => {
@@ -126,9 +127,9 @@ gitlab.triggers.onMergeRequestEvent({
 **Use cases**: Project management automation, notifications, workflow integration
 
 ```typescript
-import { getProvider } from "floww";
+import { Gitlab } from "floww";
 
-const gitlab = getProvider("gitlab");
+const gitlab = new Gitlab();
 
 gitlab.triggers.onIssueEvent({
   handler: (ctx, event) => {
@@ -162,9 +163,9 @@ The GitLab provider also includes utility methods for interacting with the GitLa
 Fetch project details:
 
 ```typescript
-import { getProvider } from "floww";
+import { Gitlab } from "floww";
 
-const gitlab = getProvider("gitlab");
+const gitlab = new Gitlab();
 
 const project = await gitlab.getProject('project-id');
 console.log(project.name, project.description);
@@ -175,9 +176,9 @@ console.log(project.name, project.description);
 Create new issues programmatically:
 
 ```typescript
-import { getProvider } from "floww";
+import { Gitlab } from "floww";
 
-const gitlab = getProvider("gitlab");
+const gitlab = new Gitlab();
 
 const issue = await gitlab.createIssue('project-id', {
   title: 'Bug Report',
@@ -192,9 +193,9 @@ const issue = await gitlab.createIssue('project-id', {
 Update merge request status:
 
 ```typescript
-import { getProvider } from "floww";
+import { Gitlab } from "floww";
 
-const gitlab = getProvider("gitlab");
+const gitlab = new Gitlab();
 
 await gitlab.updateMergeRequest('project-id', 123, {
   state_event: 'merge', // or 'close'
@@ -207,10 +208,10 @@ await gitlab.updateMergeRequest('project-id', 123, {
 Here's a complete workflow that handles GitLab events:
 
 ```typescript
-import { getProvider } from "floww";
+import { Gitlab, Slack } from "floww";
 
-const gitlab = getProvider("gitlab");
-const slack = getProvider("slack");
+const gitlab = new Gitlab();
+const slack = new Slack();
 
 // Notify Slack on new merge requests
 gitlab.triggers.onMergeRequestEvent({

@@ -3,3 +3,20 @@
 .rspress-sidebar-section-header {
   padding-top: 1.5rem;
 }
+
+/* Fully black background for dark theme */
+html.dark {
+  background-color: #000000;
+}
+
+html.dark body {
+  background-color: #000000;
+}
+
+html.dark .rspress-sidebar {
+  background-color: #000000;
+}
+
+html.dark .rspress-nav {
+  background-color: #000000;
+}

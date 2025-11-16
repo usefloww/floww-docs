@@ -5,10 +5,10 @@ title: Example Use Cases
 
 ### Webhook → Slack Notification
 ```typescript
-import { getProvider } from "floww";
+import { Builtin, Slack } from "floww";
 
-const builtin = getProvider("builtin");
-const slack = getProvider("slack");
+const builtin = new Builtin();
+const slack = new Slack();
 
 builtin.triggers.onWebhook({
   path: "/deploy",
@@ -23,9 +23,9 @@ builtin.triggers.onWebhook({
 
 ### Daily Report with Cron
 ```typescript
-import { getProvider } from "floww";
+import { Builtin } from "floww";
 
-const builtin = getProvider("builtin");
+const builtin = new Builtin();
 
 builtin.triggers.onCron({
   expression: "0 9 * * 1-5",  // Weekdays at 9 AM
@@ -38,11 +38,11 @@ builtin.triggers.onCron({
 
 ### GitLab → AI Analysis
 ```typescript
-import { getProvider } from "floww";
+import { Gitlab, OpenAI } from "floww";
 import { generateText } from "floww/ai";
 
-const gitlab = getProvider("gitlab");
-const openai = getProvider("openai");
+const gitlab = new Gitlab();
+const openai = new OpenAI();
 
 gitlab.triggers.onMergeRequestEvent({
   handler: async (ctx, event) => {

@@ -7,11 +7,11 @@ import { pluginClientRedirects } from '@rspress/plugin-client-redirects';
 export default defineConfig({
   root: path.join(__dirname, 'docs'),
   title: 'Floww',
-  icon: '/rspress-icon.png',
+  icon: '/floww-dark-logo.png',
   globalStyles: path.join(__dirname, 'styles/index.css'),
   logo: {
-    light: '/rspress-light-logo.png',
-    dark: '/rspress-dark-logo.png',
+    light: '/floww-light-logo.png',
+    dark: '/floww-dark-logo.png',
   },
   // Set the default theme mode to dark
   markdown: {

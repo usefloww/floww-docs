@@ -31,9 +31,9 @@ cd my-workflow  # or whatever name you chose
 Edit the `main.ts` file created by `floww init`:
 
 ```typescript title="main.ts"
-import { getProvider } from "floww";
+import { Builtin } from "floww";
 
-const builtin = getProvider("builtin");
+const builtin = new Builtin();
 
 builtin.triggers.onCron({
   expression: "*/1 * * * * *",
@@ -64,9 +64,9 @@ You should see a new log line every second as the cron trigger fires.
 Let's add a webhook trigger to handle HTTP requests. Update your `main.ts`:
 
 ```typescript title="main.ts"
-import { getProvider } from "floww";
+import { Builtin } from "floww";
 
-const builtin = getProvider("builtin");
+const builtin = new Builtin();
 
 // Cron trigger - runs every second
 builtin.triggers.onCron({

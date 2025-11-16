@@ -3,7 +3,9 @@
 Core triggers available in every Floww installation. No additional setup required.
 
 ```typescript
-import { getProvider } from "floww";
+import { Builtin } from "floww";
+
+const builtin = new Builtin();
 ```
 
 ## Webhook Trigger

@@ -3,8 +3,28 @@ title: Self Hosting
 ---
 
 import { Badge } from "@theme";
+import { ArchitectureDiagram } from "../components/architectureDiagram";
+
+
 
 ## Configuration
+
+For the most up to date view on all configuration options, please refer to [the source code](https://github.com/usefloww/floww-backend/blob/main/app/settings.py).
+
+
+For self hosting, the following options are recommended:
+
+```yaml
+# This is needed for webhooks to correctly reach the backend
+PUBLIC_API_URL: <your-public-url>
+
+# Depending on your deployment environment, you can choose to run the 
+# the user code in a container on the local machine or on a kubernetes cluster
+RUNTIME_TYPE: docker | kubernetes
+
+# Saves you the hassle of running migrations seperately
+RUN_MIGRATIONS_ON_STARTUP: true
+```
 
 
 ## Components & Services
@@ -20,24 +40,28 @@ import { Badge } from "@theme";
 ### Docker Compose
 The simplest way to get started with self hosting is to use [docker compose](https://docs.docker.com/compose/)
 
-When using docker compose for self hosting floww will spin up images with the runtimes for user code.
+When using docker compose for self hosting floww will spin up images with the runtimes for user code and will scale the container back to 0 when not in use (after 5 minutes of inactivity).
 
 #### Requirements
 
 - Docker
 - Docker Compose
-- Postgres database (optional)
 
 #### Deployment
 
+Create the following files
 
-```yaml
+```yaml title=".env"
+PUBLIC_API_URL: <your-public-url> # TODO: add your public url
+RUNTIME_TYPE: docker
+RUN_MIGRATIONS_ON_STARTUP: true
+```
+
+```yaml title="docker-compose.yml"
 services:
   backend:
     image: ghcr.io/usefloww/floww-backend:latest
     container_name: "floww-backend"
-    command: >
-      python -X frozen_modules=off -m debugpy --listen 0.0.0.0:3100 -m uvicorn app.main:app --host 0.0.0.0 --proxy-headers --reload
     env_file:
       - .env
     environment:
@@ -45,14 +69,18 @@ services:
       - REGISTRY_AUTH_USER=${DOCKER_REGISTRY_USER:-}
       - REGISTRY_AUTH_PASSWORD=${DOCKER_REGISTRY_PASSWORD:-}
       - REGISTRY_REPOSITORY_NAME=floww-runtime
+      - RUNTIME_TYPE=docker
+      - AUTH_TYPE=password
+      - RUN_MIGRATIONS_ON_STARTUP=true
+      - SINGLE_ORG_MODE="true"                          # Enable single-org mode
+      - SINGLE_ORG_NAME="default"                        # Organization slug/identifier
+      - SINGLE_ORG_DISPLAY_NAME="My Organization"      # Display name
+      - SINGLE_ORG_DEFAULT_ROLE="owner"                  # Default role for users (owner/admin/member)
+      - SINGLE_ORG_ALLOW_PERSONAL_NAMESPACES="false"     # Allow personal workflow namespaces
     volumes:
-      - ../floww-backend/app:/home/appuser/app
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "~/.docker/config.json:/root/.docker/config.json"
     user: root
-    ports:
-      - "8000:8000"
-      - "3100:3100"
     networks:
       - floww-network
     depends_on:
@@ -69,9 +97,10 @@ services:
     restart: unless-stopped
 
   dashboard:
-    build:
-      context: ../floww-dashboard
+    image: ghcr.io/usefloww/floww-dashboard:latest
     container_name: "floww-dashboard"
+    environment:
+      - BACKEND_URL=http://backend:8000
     ports:
       - "3000:3000"
     env_file:
@@ -110,8 +139,7 @@ services:
 
   centrifugo:
     container_name: floww-centrifugo
-    build:
-      context: ../floww-backend/centrifugo
+    image: ghcr.io/usefloww/floww-centrifugo:latest
     environment:
       - CENTRIFUGO_API_KEY=${CENTRIFUGO_API_KEY:-floww-api-key-dev}
       - CENTRIFUGO_ADMIN_ENABLED=${CENTRIFUGO_ADMIN_ENABLED:-false}
@@ -164,6 +192,9 @@ volumes:
   postgres-data:
   registry-data:
 ```
+
+
+Now you should be able to start the services with:
 
 ```bash
 docker compose up -d

@@ -9,12 +9,10 @@
     "type": "section-header",
     "label": "Features"
   },
-  "access-control",
   "debugging",
   "custom-runtimes",
+  "shared-runtime",
   "monitoring",
-  "llm-usage",
-  "testing",
   "api-keys",
   "ci-integration",
   {
