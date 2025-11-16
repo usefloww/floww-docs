@@ -30,6 +30,141 @@ When using docker compose for self hosting floww will spin up images with the ru
 
 #### Deployment
 
+
+```yaml
+services:
+  backend:
+    image: ghcr.io/usefloww/floww-backend:latest
+    container_name: "floww-backend"
+    command: >
+      python -X frozen_modules=off -m debugpy --listen 0.0.0.0:3100 -m uvicorn app.main:app --host 0.0.0.0 --proxy-headers --reload
+    env_file:
+      - .env
+    environment:
+      - REGISTRY_URL=http://registry:5000
+      - REGISTRY_AUTH_USER=${DOCKER_REGISTRY_USER:-}
+      - REGISTRY_AUTH_PASSWORD=${DOCKER_REGISTRY_PASSWORD:-}
+      - REGISTRY_REPOSITORY_NAME=floww-runtime
+    volumes:
+      - ../floww-backend/app:/home/appuser/app
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "~/.docker/config.json:/root/.docker/config.json"
+    user: root
+    ports:
+      - "8000:8000"
+      - "3100:3100"
+    networks:
+      - floww-network
+    depends_on:
+      db:
+        condition: service_healthy
+      registry:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import requests; r=requests.get('http://localhost:8000/api/health', timeout=5); r.raise_for_status()"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: ../floww-dashboard
+    container_name: "floww-dashboard"
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    networks:
+      - floww-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  db:
+    container_name: floww-db
+    image: postgres:18-alpine3.22
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - floww-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+
+  centrifugo:
+    container_name: floww-centrifugo
+    build:
+      context: ../floww-backend/centrifugo
+    environment:
+      - CENTRIFUGO_API_KEY=${CENTRIFUGO_API_KEY:-floww-api-key-dev}
+      - CENTRIFUGO_ADMIN_ENABLED=${CENTRIFUGO_ADMIN_ENABLED:-false}
+      - CENTRIFUGO_ADMIN_INSECURE=${CENTRIFUGO_ADMIN_INSECURE:-false}
+      - CENTRIFUGO_CONNECT_PROXY_ENDPOINT=${CENTRIFUGO_CONNECT_PROXY_ENDPOINT:-http://backend:8000/centrifugo/connect}
+      - CENTRIFUGO_SUBSCRIBE_PROXY_ENDPOINT=${CENTRIFUGO_SUBSCRIBE_PROXY_ENDPOINT:-http://backend:8000/centrifugo/subscribe}
+      - CENTRIFUGO_ALLOWED_ORIGINS=${CENTRIFUGO_ALLOWED_ORIGINS:-["https://dashboard.localhost", "https://api.localhost"]}
+      - CENTRIFUGO_ALLOW_ANONYMOUS=${CENTRIFUGO_ALLOW_ANONYMOUS:-false}
+    networks:
+      - floww-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    restart: always
+
+  registry:
+    container_name: floww-registry
+    image: registry:2.8.3
+    ports:
+      - "5001:5000"
+    environment:
+      - REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/var/lib/registry
+    volumes:
+      - registry-data:/var/lib/registry
+    networks:
+      - floww-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/v2/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: always
+
+networks:
+  floww-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  registry-data:
+```
+
 ```bash
 docker compose up -d
 ```
