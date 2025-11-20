@@ -1,1 +1,0 @@
-# Kubernetes self hosting

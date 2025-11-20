@@ -17,6 +17,20 @@ export default defineConfig({
   markdown: {
     checkDeadLinks: true,
   },
+  themeConfig: {
+    socialLinks: [
+      {
+        icon: 'github',
+        mode: 'link',
+        content: 'https://github.com/usefloww',
+      },
+      {
+        icon: 'discord',
+        mode: 'link',
+        content: 'https://discord.com/invite/zgFXxtQECu',
+      },
+    ]
+  },
   plugins: [
     pluginClientRedirects({
       redirects: [

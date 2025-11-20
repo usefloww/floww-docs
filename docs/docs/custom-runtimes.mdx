@@ -18,6 +18,10 @@ RUN npm install
 
 When running `floww deploy`, the Dockerfile will automatically be built and used for the deployment.
 
+:::info
+Only include your dependencies (`package.json`) in the runtime, not your workflow code. Your workflow code is dynamically evaluated at runtime and should not be copied into the Docker image.
+:::
+
 
 :::warning
 The `Dockerfile` will be used when deploying the workflow but not when running floww locally.

@@ -4,4 +4,28 @@ title: Shared Runtime
 
 import { Badge } from "@theme";
 
+A shared runtime allows you to reuse the same runtime environment across multiple workflows. This is useful when you have several workflows that depend on the same packages, as it helps reduce boilerplate code and prevents bloating your `node_modules` with duplicate dependencies across every workflow.
 
+```sh
+.
+├── package.json
+├── Dockerfile
+├── workflow-1
+│   ├── floww.yaml
+│   └── main.ts
+└── workflow-2
+    ├── floww.yaml
+    └── main.ts
+```
+
+## Configuration
+
+To enable shared runtime for your workflows, configure the `build:` section in your `floww.yaml`:
+
+```yaml
+build:
+  context: ..
+  dockerfile: ../Dockerfile
+```
+
+This configuration tells Floww to use the Dockerfile located in the parent directory, allowing multiple workflows to share the same build context and runtime environment.

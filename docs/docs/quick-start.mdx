@@ -91,12 +91,12 @@ builtin.triggers.onWebhook({
 
 When you run `floww dev`, you'll get a webhook URL like:
 ```
-✓ Webhook registered: https://api.usefloww.dev/webhook/w_abc123/hello
+✓ Webhook registered: https://app.usefloww.dev/webhook/w_abc123/hello
 ```
 
 Test it with curl:
 ```bash
-curl -X POST https://api.usefloww.dev/webhook/w_abc123/hello \
+curl -X POST https://app.usefloww.dev/webhook/w_abc123/hello \
   -H "Content-Type: application/json" \
   -d '{"name": "World"}'
 ```
