@@ -13,7 +13,7 @@ const slack = new Slack();
 builtin.triggers.onWebhook({
   path: "/deploy",
   handler: async (ctx, event) => {
-    await slack.postMessage({
+    await slack.actions.sendMessage({
       channel: "#deployments",
       text: `🚀 Deployment triggered for ${event.body.project}`
     });
@@ -44,7 +44,8 @@ import { generateText } from "floww/ai";
 const gitlab = new Gitlab();
 const openai = new OpenAI();
 
-gitlab.triggers.onMergeRequestEvent({
+gitlab.triggers.onMergeRequest({
+  projectId: "my-project-id",
   handler: async (ctx, event) => {
     const { title, description } = event.object_attributes;
 

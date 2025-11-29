@@ -9,7 +9,7 @@ Get started with Floww in under 5 minutes. Build your first workflow and deploy 
 
 ## Create a New Project
 
-Use the `floww init` command to create a new project:
+Use the `npx floww init` command to create a new project:
 
 ```bash
 npx floww init
@@ -28,7 +28,7 @@ cd my-workflow  # or whatever name you chose
 
 ## Your First Workflow
 
-Edit the `main.ts` file created by `floww init`:
+Edit the `main.ts` file created by `npx floww init`:
 
 ```typescript title="main.ts"
 import { Builtin } from "floww";
@@ -48,7 +48,7 @@ builtin.triggers.onCron({
 Start the development server:
 
 ```bash
-floww dev
+npx floww dev
 ```
 
 **What happens:**
@@ -89,7 +89,7 @@ builtin.triggers.onWebhook({
 });
 ```
 
-When you run `floww dev`, you'll get a webhook URL like:
+When you run `npx floww dev`, you'll get a webhook URL like:
 ```
 ✓ Webhook registered: https://app.usefloww.dev/webhook/w_abc123/hello
 ```
@@ -106,7 +106,7 @@ curl -X POST https://app.usefloww.dev/webhook/w_abc123/hello \
 When you're ready to deploy:
 
 ```bash
-floww deploy
+npx floww deploy
 ```
 
 **What happens:**

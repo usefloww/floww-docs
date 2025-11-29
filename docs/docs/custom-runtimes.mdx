@@ -16,7 +16,7 @@ COPY package.json /app/package.json
 RUN npm install
 ```
 
-When running `floww deploy`, the Dockerfile will automatically be built and used for the deployment.
+When running `npx floww deploy`, the Dockerfile will automatically be built and used for the deployment.
 
 :::info
 Only include your dependencies (`package.json`) in the runtime, not your workflow code. Your workflow code is dynamically evaluated at runtime and should not be copied into the Docker image.
